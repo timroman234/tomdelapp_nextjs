@@ -5,6 +5,7 @@ export type Platform = {
   note: string;
   url: string;
   enabled: boolean;
+  external?: boolean;
 };
 
 export const platforms: Platform[] = [

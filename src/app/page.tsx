@@ -12,7 +12,7 @@ export default function HomePage() {
 
   return (
     <>
-      <section className="relative overflow-hidden border-t-[6px] border-b border-red border-line-3 bg-[linear-gradient(172deg,#C9B69A_0%,#DBCAB2_30%,#EFE5D6_68%,#FBF6EE_100%)]">
+      <section className="relative overflow-hidden border-t-[6px] border-t-red border-b border-line-3 bg-[linear-gradient(172deg,#C9B69A_0%,#DBCAB2_30%,#EFE5D6_68%,#FBF6EE_100%)]">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_84%_6%,rgba(255,250,242,0.55)_0%,rgba(255,250,242,0)_65%)]" />
         <div
           className="pointer-events-none absolute inset-x-0 bottom-0 h-[46px] [mask-image:linear-gradient(to_top,#000_0%,transparent_100%)]"
@@ -27,7 +27,7 @@ export default function HomePage() {
               <span className="block h-px w-[26px] bg-red" />
               {hero.eyebrow}
             </div>
-            <h1 className="mb-[14px] font-heading text-[54px] font-bold leading-[1.05] tracking-[-0.025em]">
+            <h1 className="mb-[14px] font-heading text-[34px] nav:text-[54px] font-bold leading-[1.05] tracking-[-0.025em]">
               {hero.heading}
             </h1>
             <p className="mb-[18px] font-heading text-[25px] leading-[1.2] text-red">
@@ -58,6 +58,8 @@ export default function HomePage() {
                 <Link
                   key={platform.key}
                   href={platform.url}
+                  target={platform.external ? "_blank" : undefined}
+                  rel={platform.external ? "noopener noreferrer" : undefined}
                   className="flex items-center gap-2 text-sm font-medium text-ink-soft no-underline hover:text-red"
                 >
                   <span className="block h-[6px] w-[6px] rounded-full bg-red" />

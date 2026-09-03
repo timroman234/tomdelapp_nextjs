@@ -76,7 +76,6 @@ export function Header() {
                 </button>
 
                 <div
-                  role="menu"
                   className={`absolute top-full w-[268px] flex-col border border-line border-t-[3px] border-t-red bg-white py-2 shadow-[0_14px_34px_rgba(31,26,24,0.14)] ${
                     isLastTwo ? "right-[-18px] left-auto" : "left-[-18px] right-auto"
                   } ${isOpen ? "flex" : "hidden"}`}
@@ -87,7 +86,6 @@ export function Header() {
                       href={child.href}
                       target={child.external ? "_blank" : undefined}
                       rel={child.external ? "noopener noreferrer" : undefined}
-                      role="menuitem"
                       onKeyDown={(e) => e.key === "Escape" && closeMenu()}
                       className="block px-5 py-[9px] text-sm leading-[1.35] text-ink-soft no-underline hover:bg-cream-2 hover:text-red"
                     >
@@ -126,7 +124,7 @@ export function Header() {
               item.children ? (
                 <details key={item.label} className="group">
                   <summary
-                    className={`flex cursor-pointer list-none items-center justify-between py-3 text-[15px] font-medium ${
+                    className={`flex cursor-pointer list-none [&::-webkit-details-marker]:hidden items-center justify-between py-3 text-[15px] font-medium ${
                       isItemCurrent(item, pathname) ? "text-red" : "text-ink"
                     }`}
                   >

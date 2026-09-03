@@ -36,6 +36,8 @@ export function SubscribeBand({
             <Link
               key={platform.key}
               href={platform.url}
+              target={platform.external ? "_blank" : undefined}
+              rel={platform.external ? "noopener noreferrer" : undefined}
               className="flex items-center justify-between gap-4 border border-[rgba(251,248,245,0.22)] bg-[rgba(251,248,245,0.07)] px-5 py-4 text-cream no-underline hover:border-cream hover:bg-[rgba(251,248,245,0.14)]"
             >
               <span className="font-heading text-[17px] font-semibold">{platform.name}</span>

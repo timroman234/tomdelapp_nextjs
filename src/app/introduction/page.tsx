@@ -1,8 +1,15 @@
 // src/app/introduction/page.tsx
+import type { Metadata } from "next";
 import Link from "next/link";
 import { OffsetPhoto } from "@/components/offset-photo";
 import { SubscribeBand } from "@/components/subscribe-band";
 import { introductionContent } from "@/content/introduction";
+
+export const metadata: Metadata = {
+  title: "Speaker's Introduction | Communication Resources",
+  description:
+    "Proven techniques to level the news playing field — how Tom DeLapp helps school leaders navigate media relations, from crisis communication to interview prep.",
+};
 
 export default function IntroductionPage() {
   const {
@@ -19,7 +26,7 @@ export default function IntroductionPage() {
 
   return (
     <>
-      <section className="relative overflow-hidden border-t-[6px] border-b border-red border-line-3 bg-[linear-gradient(172deg,#C9B69A_0%,#DBCAB2_30%,#EFE5D6_68%,#FBF6EE_100%)]">
+      <section className="relative overflow-hidden border-t-[6px] border-t-red border-b border-line-3 bg-[linear-gradient(172deg,#C9B69A_0%,#DBCAB2_30%,#EFE5D6_68%,#FBF6EE_100%)]">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_84%_6%,rgba(255,250,242,0.55)_0%,rgba(255,250,242,0)_65%)]" />
         <div
           className="pointer-events-none absolute inset-x-0 bottom-0 h-[46px] [mask-image:linear-gradient(to_top,#000_0%,transparent_100%)]"
@@ -33,7 +40,7 @@ export default function IntroductionPage() {
             <span className="block h-px w-[26px] bg-red" />
             {banner.eyebrow}
           </div>
-          <h1 className="mb-3 max-w-[22ch] font-heading text-[52px] font-bold leading-[1.05] tracking-[-0.025em]">
+          <h1 className="mb-3 max-w-[22ch] font-heading text-[33px] nav:text-[52px] font-bold leading-[1.05] tracking-[-0.025em]">
             {banner.heading}
           </h1>
           <p className="whitespace-nowrap font-heading text-[23px] leading-[1.25] text-red max-[700px]:whitespace-normal">

@@ -13,6 +13,7 @@ function isItemCurrent(item: NavItem, pathname: string) {
 
 export function Header() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
   const closeMenu = useCallback(() => setOpenMenu(null), []);
 
@@ -98,7 +99,71 @@ export function Header() {
             );
           })}
         </nav>
+
+        <button
+          type="button"
+          aria-label={drawerOpen ? "Close menu" : "Open menu"}
+          aria-expanded={drawerOpen}
+          onClick={() => setDrawerOpen((v) => !v)}
+          className="ml-auto flex h-10 w-10 flex-none flex-col items-center justify-center gap-[5px] border-0 bg-transparent nav:hidden"
+        >
+          <span
+            className={`block h-[2px] w-6 bg-ink transition-transform ${drawerOpen ? "translate-y-[7px] rotate-45" : ""}`}
+          />
+          <span
+            className={`block h-[2px] w-6 bg-ink transition-opacity ${drawerOpen ? "opacity-0" : ""}`}
+          />
+          <span
+            className={`block h-[2px] w-6 bg-ink transition-transform ${drawerOpen ? "-translate-y-[7px] -rotate-45" : ""}`}
+          />
+        </button>
       </div>
+
+      {drawerOpen && (
+        <div className="border-t border-line bg-cream nav:hidden">
+          <nav className="container-cr flex flex-col gap-1 py-4">
+            {nav.map((item) =>
+              item.children ? (
+                <details key={item.label} className="group">
+                  <summary
+                    className={`flex cursor-pointer list-none items-center justify-between py-3 text-[15px] font-medium ${
+                      isItemCurrent(item, pathname) ? "text-red" : "text-ink"
+                    }`}
+                  >
+                    {item.label}
+                    <span className="text-[9px] text-muted-3 group-open:rotate-180">▼</span>
+                  </summary>
+                  <div className="flex flex-col gap-1 pb-2 pl-4">
+                    {item.children.map((child) => (
+                      <Link
+                        key={child.label}
+                        href={child.href}
+                        target={child.external ? "_blank" : undefined}
+                        rel={child.external ? "noopener noreferrer" : undefined}
+                        onClick={() => setDrawerOpen(false)}
+                        className="py-2 text-sm text-ink-soft no-underline hover:text-red"
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
+                </details>
+              ) : (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  onClick={() => setDrawerOpen(false)}
+                  className={`block py-3 text-[15px] font-medium no-underline hover:text-red ${
+                    isItemCurrent(item, pathname) ? "text-red" : "text-ink"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ),
+            )}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

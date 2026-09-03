@@ -1,1 +1,47 @@
 @import "tailwindcss";
+
+@theme {
+  --color-ink: #1F1A18;
+  --color-ink-soft: #3A322E;
+  --color-ink-muted: #4A403A;
+  --color-body: #5C4F49;
+  --color-muted: #6B5F58;
+  --color-muted-2: #7A6A5E;
+  --color-muted-3: #9A8B81;
+  --color-muted-4: #B3A398;
+  --color-red: #B01F24;
+  --color-red-dark: #8E1418;
+  --color-red-bright: #C8272D;
+  --color-teal: #14675F;
+  --color-cream: #FBF8F5;
+  --color-cream-2: #FBF6EE;
+  --color-line: #E7DED6;
+  --color-line-2: #E0D5CB;
+  --color-line-3: #D8C9B6;
+  --color-line-4: #D6C8BA;
+  --color-line-5: #F1EAE3;
+
+  --font-heading: var(--font-bitter), Georgia, serif;
+  --font-body: var(--font-plex-sans), Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  /*
+    Single shared breakpoint used for the nav hamburger AND every grid
+    collapse called out in the design spec (hero, latest-episode card,
+    about section, interior two-column body, subscribe band, footer).
+  */
+  --breakpoint-nav: 900px;
+}
+
+@layer components {
+  .container-cr {
+    max-width: 1180px;
+    margin-inline: auto;
+    padding-inline: 32px;
+  }
+}
+
+@keyframes cr-bar {
+  0%, 100% { transform: scaleY(0.35); }
+  50% { transform: scaleY(1); }
+}

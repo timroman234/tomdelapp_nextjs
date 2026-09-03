@@ -10,13 +10,6 @@ export const introductionContent = {
     headshotAlt: "Tom DeLapp",
     name: "Tom DeLapp",
     role: "Communication Resources",
-    siblingLabel: "More about us",
-    siblingLinks: [
-      { label: "Principles & Beliefs", href: "/principles-beliefs" },
-      { label: "Experience & Expertise", href: "/experience-expertise" },
-      { label: "Professional Resume", href: "/resume" },
-      { label: "Our Team", href: "/our-team" },
-    ],
   },
   lede: "Educators tend to view the news media as either a bothersome intrusion or an outright obstacle in their work. Most people in your community make up their minds about public schools by what they read in newspapers, scroll on Internet newsfeeds, or hear on TV or radio.",
   secondParagraph:

@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { bitter, plexSans } from "./fonts";
+import { UtilityBar } from "@/components/utility-bar";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -11,7 +14,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${bitter.variable} ${plexSans.variable}`}>
-      <body className="bg-cream font-body text-ink antialiased">{children}</body>
+      <body className="bg-cream font-body text-ink antialiased">
+        <UtilityBar />
+        <Header />
+        <main>{children}</main>
+        <Footer />
+      </body>
     </html>
   );
 }

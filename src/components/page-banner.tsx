@@ -21,7 +21,7 @@ export function PageBanner({ eyebrow, heading, subheading }: PageBannerProps) {
           <span className="block h-px w-[26px] bg-red" />
           {eyebrow}
         </div>
-        <h1 className="mb-3 max-w-[22ch] font-heading text-[33px] nav:text-[52px] font-bold leading-[1.05] tracking-[-0.025em]">
+        <h1 className="mb-3 max-w-[36ch] font-heading text-[28px] nav:text-[40px] font-bold leading-[1.05] tracking-[-0.025em]">
           {heading}
         </h1>
         <p className="whitespace-nowrap font-heading text-[23px] leading-[1.25] text-red max-[700px]:whitespace-normal">

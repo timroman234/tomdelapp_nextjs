@@ -41,7 +41,7 @@ export function SidebarRail({ headshotSrc, headshotAlt, name, role }: SidebarRai
         <div className="mt-[3px] text-sm text-muted">{role}</div>
       </div>
       {siblingLinks.length > 0 && (
-        <div className="mt-[26px] grid gap-[9px] border-t border-line pt-[22px] text-sm">
+        <div className="mt-[26px] hidden gap-[9px] border-t border-line pt-[22px] text-sm nav:grid">
           <div className="mb-[3px] text-xs uppercase tracking-[0.14em] text-muted-3">
             {siblingLabel}
           </div>

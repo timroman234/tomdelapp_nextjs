@@ -104,12 +104,14 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 items-start gap-8 border border-line bg-white p-9 nav:grid-cols-[132px_minmax(0,1fr)]">
-            <div className="flex aspect-square items-center justify-center border border-line-2 p-[10px] text-center [background:repeating-linear-gradient(135deg,#F1E9E2_0_10px,#E8DED5_10px_20px)]">
-              <span className="font-mono text-[9px] leading-[1.6] tracking-[0.08em] text-muted-3">
-                EPISODE
-                <br />
-                ART
-              </span>
+            <div className="relative aspect-square overflow-hidden border border-line-2">
+              <Image
+                src={latestEpisode.episodeArt.src}
+                alt={latestEpisode.episodeArt.alt}
+                fill
+                sizes="132px"
+                className="object-cover"
+              />
             </div>
             <div>
               <div className="mb-[10px] text-xs uppercase tracking-[0.08em] text-muted-3">
@@ -121,7 +123,7 @@ export default function HomePage() {
               <p className="mb-[26px] max-w-[62ch] text-base leading-[1.6] text-body text-pretty">
                 {latestEpisode.summary}
               </p>
-              <EpisodePlayer timecode={latestEpisode.timecode} />
+              <EpisodePlayer audioSrc={latestEpisode.audioSrc} />
               <div className="mt-[10px] font-mono text-[11px] text-muted-3">
                 {latestEpisode.playerDisclaimer}
               </div>

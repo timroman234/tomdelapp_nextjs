@@ -18,13 +18,17 @@ export const homeContent = {
     eyebrow: "Latest episode",
     allEpisodesHref: "/podcast-library",
     allEpisodesLabel: "All episodes →",
-    meta: "Episode 01 · Placeholder date · 32 min",
-    title: "Episode title goes here",
+    meta: "Sample clip · Old Time Radio · 5:59",
+    title: "Abbott & Costello: An Audio Biography",
     summary:
-      "One or two sentences of episode summary — the question this episode answers and why it matters to a cabinet. Replace with real copy once the first episodes are recorded.",
+      "Placeholder — not a real Straight Talk episode. A public-domain Old Time Radio clip standing in for the real thing until Tom's first episodes are recorded and a platform is chosen.",
     playerDisclaimer:
-      "player placeholder — swap for the host's embed once the platform is chosen",
-    timecode: "00:00 / 32:10",
+      "placeholder audio & art (public domain, courtesy of the Old Time Radio Researchers Group) — swap for the host's real episode once the platform is chosen",
+    audioSrc: "/audio/sample-episode.mp3",
+    episodeArt: {
+      src: "/images/sample-episode-art.jpg",
+      alt: "Old Time Radio Researchers Group cover art for Abbott and Costello radio programs",
+    },
   },
   aboutHost: {
     eyebrow: "About the host",

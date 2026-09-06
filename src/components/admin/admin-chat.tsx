@@ -353,7 +353,7 @@ export function AdminChat() {
         </div>
       )}
 
-      <div className="mt-4 flex items-center gap-2 border border-line bg-white px-3 py-2">
+      <div className="mt-4 flex items-center gap-2 border border-line-3 bg-white px-3 py-2">
         <input
           ref={fileInputRef}
           type="file"

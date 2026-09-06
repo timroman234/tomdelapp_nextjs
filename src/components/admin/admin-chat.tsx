@@ -102,6 +102,37 @@ function nextId() {
   return `item-${idCounter}`;
 }
 
+const TIPS = [
+  {
+    heading: "Be specific",
+    body: 'Name the section you mean — e.g. "the hero tagline" or "the About the host paragraphs" — so the assistant edits the right spot. Right now only the homepage is editable; more pages will be added soon.',
+  },
+  {
+    heading: "Images",
+    body: "Attach a photo directly in the chat, or use the mic to describe what you want changed. Accepted formats: JPG, PNG, WebP, GIF — up to 5MB.",
+  },
+  {
+    heading: "Nothing publishes automatically",
+    body: "You'll always see the exact before/after change first. Click Apply to make it live, or Discard to cancel — nothing is saved until you approve it.",
+  },
+];
+
+function TipsSidebar() {
+  return (
+    <aside className="hidden w-[240px] flex-none nav:block">
+      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-3">Tips</div>
+      <div className="mt-4 flex flex-col gap-5">
+        {TIPS.map((tip) => (
+          <div key={tip.heading}>
+            <div className="mb-1 text-sm font-semibold text-ink">{tip.heading}</div>
+            <p className="text-sm leading-[1.5] text-ink-muted">{tip.body}</p>
+          </div>
+        ))}
+      </div>
+    </aside>
+  );
+}
+
 export function AdminChat() {
   const [items, setItems] = useState<DisplayItem[]>([]);
   const [history, setHistory] = useState<ChatMessage[]>([]);
@@ -278,10 +309,11 @@ export function AdminChat() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[820px] flex-1 flex-col px-6 py-8">
+    <div className="container-cr flex flex-1 gap-12 py-8">
+      <div className="flex w-full flex-1 flex-col">
       <div className="flex flex-1 flex-col gap-4">
         {items.length === 0 && (
-          <p className="text-sm leading-[1.6] text-muted">
+          <p className="text-sm leading-[1.6] text-ink-muted">
             Tell me what to update on the homepage — for example, &ldquo;change the hero tagline to
             Communication, on your side.&rdquo; I&apos;ll show you the exact change before anything goes
             live.
@@ -368,6 +400,8 @@ export function AdminChat() {
           <SendIcon />
         </button>
       </div>
+      </div>
+      <TipsSidebar />
     </div>
   );
 }

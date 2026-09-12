@@ -4,8 +4,14 @@
     "heading": "When communication really counts",
     "tagline": "Count on us.",
     "body": "Straight Talk is a weekly conversation with Tom DeLapp on the communication decisions superintendents and district cabinets actually face — media, crisis, community trust, and the culture inside your own organization.",
-    "primaryCta": { "label": "Subscribe free", "href": "/#subscribe" },
-    "secondaryCta": { "label": "Play the latest episode", "href": "#latest" },
+    "primaryCta": {
+      "label": "Subscribe free",
+      "href": "/#subscribe"
+    },
+    "secondaryCta": {
+      "label": "Play the latest episode",
+      "href": "#latest"
+    },
     "listenLabel": "Listen on",
     "onAirLabel": "ON AIR · WEEKLY",
     "captionTitle": "Straight Talk",
@@ -18,8 +24,8 @@
     "allEpisodesHref": "/podcast-library",
     "allEpisodesLabel": "All episodes →",
     "meta": "Sample clip · Old Time Radio · 5:59",
-    "title": "Abbott & Costello: An Audio Biography",
-    "summary": "Placeholder — not a real Straight Talk episode. A public-domain Old Time Radio clip standing in for the real thing until Tom's first episodes are recorded and a platform is chosen.",
+    "title": "Communicating The Truth: Separating Opinion from Fact",
+    "summary": "In our work as school communicators and educational leaders, we're often faced with entrenched viewpoints. Colleagues, employees, parents, students, politicians, and community advocates come to the decision-making table with perspectives and opinions that they firmly believe are the Truth about a matter, issue, or concern. What might be true to some people may differ wildly from what others consider to be true. The ensuing discussion frequently degrades into a right/wrong debate or even a shouting match. It becomes a win-lose situation.\n\nIn this session of Straight Talk with Tom DeLapp we'll grapple with how to reach consensus when there are conflicting viewpoints, and everyone thinks that their position is, in fact . . . The Truth.",
     "playerDisclaimer": "placeholder audio & art (public domain, courtesy of the Old Time Radio Researchers Group) — swap for the host's real episode once the platform is chosen",
     "audioSrc": "/audio/sample-episode.mp3",
     "episodeArt": {

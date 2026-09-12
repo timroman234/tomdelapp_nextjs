@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ContentDiffEntry } from "@/lib/admin/diff";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
@@ -145,6 +145,11 @@ export function AdminChat() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+  }, [items]);
 
   function handleFileSelect(file: File) {
     const reader = new FileReader();
@@ -309,9 +314,9 @@ export function AdminChat() {
   }
 
   return (
-    <div className="container-cr flex flex-1 gap-12 py-8">
-      <div className="flex w-full flex-1 flex-col">
-      <div className="flex flex-1 flex-col gap-4">
+    <div className="container-cr flex flex-1 gap-12 overflow-hidden py-8">
+      <div className="flex min-h-0 w-full flex-1 flex-col">
+      <div ref={scrollRef} className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
         {items.length === 0 && (
           <p className="text-sm leading-[1.6] text-ink-muted">
             Tell me what to update on the homepage — for example, &ldquo;change the hero tagline to
@@ -342,10 +347,10 @@ export function AdminChat() {
         )}
       </div>
 
-      {error && <div className="mt-4 border border-red-dark bg-[#FBEAEA] px-4 py-2 text-sm text-red-dark">{error}</div>}
+      {error && <div className="mt-4 flex-none border border-red-dark bg-[#FBEAEA] px-4 py-2 text-sm text-red-dark">{error}</div>}
 
       {attachedImage && (
-        <div className="mt-4 flex items-center gap-2 border border-line bg-white px-3 py-2 text-sm text-ink-soft">
+        <div className="mt-4 flex flex-none items-center gap-2 border border-line bg-white px-3 py-2 text-sm text-ink-soft">
           <span>Attached: {attachedImage.filename}</span>
           <button type="button" onClick={() => setAttachedImage(null)} className="ml-auto border-0 bg-transparent p-0 text-red hover:text-red-dark">
             Remove
@@ -353,7 +358,7 @@ export function AdminChat() {
         </div>
       )}
 
-      <div className="mt-4 flex items-center gap-2 border border-line-3 bg-white px-3 py-2">
+      <div className="mt-4 flex flex-none items-center gap-2 border border-line-3 bg-white px-3 py-2">
         <input
           ref={fileInputRef}
           type="file"

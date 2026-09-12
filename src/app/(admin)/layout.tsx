@@ -3,7 +3,7 @@ import { bitter, plexSans } from "../fonts";
 import "../globals.css";
 
 export const metadata: Metadata = {
-  title: "Site Admin | Communication Resources",
+  title: "Greenroom | Communication Resources",
   description: "Content admin for the Communication Resources website.",
   robots: { index: false, follow: false },
 };

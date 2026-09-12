@@ -27,7 +27,7 @@ function LoginCard() {
         </span>
       </div>
 
-      <h1 className="mb-2 font-heading text-[22px] font-semibold tracking-[-0.01em]">Site Admin</h1>
+      <h1 className="mb-2 font-heading text-[22px] font-semibold tracking-[-0.01em]">Greenroom</h1>
       <p className="mb-6 text-sm leading-[1.5] text-ink-soft">
         Sign in with an authorized Google account to edit site content.
       </p>

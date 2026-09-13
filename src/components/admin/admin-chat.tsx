@@ -167,20 +167,34 @@ export function AdminChat() {
       return;
     }
 
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const recorder = new MediaRecorder(stream);
+    let stream: MediaStream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+      setError("Microphone access was denied. Allow microphone access for this site in your browser settings and try again.");
+      return;
+    }
+
+    const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+      ? "audio/webm;codecs=opus"
+      : MediaRecorder.isTypeSupported("audio/mp4")
+        ? "audio/mp4"
+        : "";
+    const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
     audioChunksRef.current = [];
-    recorder.ondataavailable = (e) => audioChunksRef.current.push(e.data);
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) audioChunksRef.current.push(e.data);
+    };
     recorder.onstop = async () => {
       stream.getTracks().forEach((t) => t.stop());
-      const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType });
+      const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || "audio/webm" });
       const reader = new FileReader();
       reader.onload = async () => {
         try {
           const res = await fetch("/api/admin/transcribe", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ audio: reader.result }),
+            body: JSON.stringify({ audio: reader.result, mimeType: blob.type }),
           });
           const data = await res.json();
           if (data.transcript) setInput((prev) => (prev ? `${prev} ${data.transcript}` : data.transcript));
@@ -386,6 +400,16 @@ export function AdminChat() {
           <span>Attached: {attachedImage.filename}</span>
           <button type="button" onClick={() => setAttachedImage(null)} className="ml-auto border-0 bg-transparent p-0 text-red hover:text-red-dark">
             Remove
+          </button>
+        </div>
+      )}
+
+      {recording && (
+        <div className="mt-4 flex w-fit flex-none items-center gap-2 rounded-full border border-red-dark bg-[#FBEAEA] px-3 py-1.5 text-sm text-red-dark">
+          <span className="h-2 w-2 flex-none animate-pulse rounded-full bg-red" />
+          Recording…
+          <button type="button" onClick={toggleRecording} className="border-0 bg-transparent p-0 font-medium underline hover:no-underline">
+            Stop
           </button>
         </div>
       )}

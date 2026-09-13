@@ -127,7 +127,7 @@ export default function HomePage() {
                   {latestEpisode.subtitle}
                 </p>
               )}
-              <p className="mb-[26px] max-w-[62ch] text-base leading-[1.6] text-body text-pretty">
+              <p className="mb-[26px] text-base leading-[1.6] text-body text-pretty">
                 {latestEpisode.summary}
               </p>
               <EpisodePlayer audioSrc={latestEpisode.audioSrc} />

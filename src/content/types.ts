@@ -27,6 +27,7 @@ export type HomeContent = {
     allEpisodesLabel: string;
     meta: string;
     title: string;
+    subtitle?: string;
     summary: string;
     playerDisclaimer: string;
     audioSrc: string;

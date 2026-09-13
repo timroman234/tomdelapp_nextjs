@@ -51,6 +51,7 @@ export function validateHomeContent(data: unknown): data is HomeContent {
     !isString(latestEpisode.allEpisodesLabel) ||
     !isString(latestEpisode.meta) ||
     !isString(latestEpisode.title) ||
+    (latestEpisode.subtitle !== undefined && !isString(latestEpisode.subtitle)) ||
     !isString(latestEpisode.summary) ||
     !isString(latestEpisode.playerDisclaimer) ||
     !isString(latestEpisode.audioSrc) ||

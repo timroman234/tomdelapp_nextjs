@@ -117,9 +117,16 @@ export default function HomePage() {
               <div className="mb-[10px] text-xs uppercase tracking-[0.08em] text-muted-3">
                 {latestEpisode.meta}
               </div>
-              <h3 className="mb-3 max-w-[30ch] font-heading text-[30px] leading-[1.15] tracking-[-0.015em]">
+              <h3
+                className={`max-w-[30ch] font-heading text-[30px] font-bold leading-[1.15] tracking-[-0.015em] ${latestEpisode.subtitle ? "mb-1" : "mb-3"}`}
+              >
                 {latestEpisode.title}
               </h3>
+              {latestEpisode.subtitle && (
+                <p className="mb-3 max-w-[30ch] font-heading text-lg leading-[1.3] text-ink-soft">
+                  {latestEpisode.subtitle}
+                </p>
+              )}
               <p className="mb-[26px] max-w-[62ch] text-base leading-[1.6] text-body text-pretty">
                 {latestEpisode.summary}
               </p>

@@ -23,7 +23,7 @@ Your ONLY job right now is editing the homepage's content — the hero section, 
 
 ## Home content schema
 (hero) eyebrow, heading, tagline, body: strings. primaryCta / secondaryCta: {label, href}. listenLabel, onAirLabel, captionTitle, captionSubtitle: strings. imageSrc, imageAlt: strings.
-(latestEpisode) eyebrow, allEpisodesHref, allEpisodesLabel, meta, title, summary, playerDisclaimer, audioSrc: strings. episodeArt: {src, alt}.
+(latestEpisode) eyebrow, allEpisodesHref, allEpisodesLabel, meta, title, summary, playerDisclaimer, audioSrc: strings. subtitle: optional string (omit or leave blank if there's no subtitle). episodeArt: {src, alt}.
 (aboutHost) eyebrow, pullQuote: strings. paragraphs: string[]. checklistLabel: string. checklist: string[]. readMoreHref, readMoreLabel, headshotSrc, headshotAlt, name, role: strings.
 (subscribeBand) heading, body: strings. showEmailForm: boolean.
 

@@ -11,15 +11,16 @@ const SYSTEM_PROMPT = `You are the content editor assistant for the Communicatio
 Your ONLY job right now is editing the homepage's content — the hero section, latest-episode section, about-the-host section, and the subscribe band. You cannot edit anything else: not other pages, not navigation, not styling, not layout, not any code or configuration. If asked to do something outside that scope, politely decline and explain what you can help with instead.
 
 ## Workflow
-1. Always call read_home_content first to see the exact current values before proposing any change — never guess or assume a current value.
-2. When ready, call propose_home_content_change with the COMPLETE home content object (every field, including the ones you are NOT changing, copied over unchanged) plus a short summary of what changed. This does not publish anything — the user reviews and explicitly approves or rejects it afterward.
-3. Never fabricate facts, phone numbers, names, or claims that weren't provided by the user or already present in the content. If a request is ambiguous, ask a clarifying question in plain text instead of proposing a change.
-4. Only propose ONE change per request unless the user clearly asked for multiple distinct edits in the same message.
+1. Always call read_home_content first to see the exact current values before making any change — never guess or assume a current value.
+2. When ready, call update_home_content with the COMPLETE home content object (every field, including the ones you are NOT changing, copied over unchanged) plus a short summary of what changed. This writes the change immediately — there is no separate approval step, and it typically goes live on the site within about a minute. Because there's no review step, don't call it unless the request is clear; ask a clarifying question in plain text first if anything is ambiguous.
+3. Never fabricate facts, phone numbers, names, or claims that weren't provided by the user or already present in the content. If a request is ambiguous, ask a clarifying question in plain text instead of making a change.
+4. Only change ONE thing per request unless the user clearly asked for multiple distinct edits in the same message.
+5. After update_home_content's tool result confirms success, reply with one or two plain-language sentences confirming what changed — don't repeat the whole content object back.
 
 ## What you must NEVER do
-- Never claim to have "published," "saved," or "deployed" anything — proposals require the user's explicit approval and a separate publish step you are not part of.
+- Never claim to have applied a change that update_home_content did not confirm succeeded.
 - Never invent a new field, section, or structure not already present in the schema below.
-- Never propose changing the site's navigation, layout, design, or any code.
+- Never change the site's navigation, layout, design, or any code.
 
 ## Home content schema
 (hero) eyebrow, heading, tagline, body: strings. primaryCta / secondaryCta: {label, href}. listenLabel, onAirLabel, captionTitle, captionSubtitle: strings. imageSrc, imageAlt: strings.
@@ -33,13 +34,13 @@ const TOOLS: Anthropic.Tool[] = [
   {
     name: "read_home_content",
     description:
-      "Read the current homepage content as JSON. Always call this before proposing a change, so edits are based on real current values.",
+      "Read the current homepage content as JSON. Always call this before making a change, so edits are based on real current values.",
     input_schema: { type: "object", properties: {}, required: [] },
   },
   {
-    name: "propose_home_content_change",
+    name: "update_home_content",
     description:
-      "Propose an updated version of the homepage content for the user to review and approve. Provide the COMPLETE home content object (every field, not just the changed ones).",
+      "Apply an updated version of the homepage content immediately — this writes directly to the live site, there is no approval step. Provide the COMPLETE home content object (every field, not just the changed ones).",
     input_schema: {
       type: "object",
       properties: {
@@ -94,7 +95,6 @@ export async function POST(req: Request) {
 
           if (toolUses.length === 0) break;
 
-          let proposed = false;
           const toolResults: Anthropic.ToolResultBlockParam[] = [];
 
           for (const toolUse of toolUses) {
@@ -108,14 +108,14 @@ export async function POST(req: Request) {
               continue;
             }
 
-            if (toolUse.name === "propose_home_content_change") {
+            if (toolUse.name === "update_home_content") {
               const input = toolUse.input as { content: unknown; summary: string };
               if (!validateHomeContent(input.content)) {
                 toolResults.push({
                   type: "tool_result",
                   tool_use_id: toolUse.id,
                   content:
-                    "Rejected: the proposed content doesn't match the required schema (missing or wrong-typed fields). Call read_home_content again and try once more.",
+                    "Rejected: the content doesn't match the required schema (missing or wrong-typed fields). Call read_home_content again and try once more.",
                   is_error: true,
                 });
                 continue;
@@ -124,15 +124,35 @@ export async function POST(req: Request) {
               const current = await github.getFile("content/home.json");
               const before = current ? JSON.parse(current.content) : null;
               const changes = diffContent(before, input.content);
+              const message = (input.summary || "Update homepage content").slice(0, 200);
+
+              try {
+                const serialized = JSON.stringify(input.content, null, 2) + "\n";
+                await github.writeFile("content/home.json", serialized, `admin: ${message}`);
+              } catch (err) {
+                toolResults.push({
+                  type: "tool_result",
+                  tool_use_id: toolUse.id,
+                  content: `Failed to write content: ${err instanceof Error ? err.message : "unknown error"}. Tell the user this failed — do not claim success.`,
+                  is_error: true,
+                });
+                continue;
+              }
 
               send({
-                type: "proposal",
+                type: "applied",
                 content: input.content,
+                before,
                 summary: input.summary,
                 changes,
               });
-              proposed = true;
-              break;
+
+              toolResults.push({
+                type: "tool_result",
+                tool_use_id: toolUse.id,
+                content: "Applied successfully — now live on the site in about a minute.",
+              });
+              continue;
             }
 
             toolResults.push({
@@ -142,8 +162,6 @@ export async function POST(req: Request) {
               is_error: true,
             });
           }
-
-          if (proposed) break;
 
           anthropicMessages.push({ role: "user", content: toolResults });
         }

@@ -5,19 +5,20 @@ import type { ContentDiffEntry } from "@/lib/admin/diff";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
-type ProposalItem = {
-  type: "proposal";
+type AppliedItem = {
+  type: "applied";
   id: string;
   content: unknown;
+  before: unknown;
   summary: string;
   changes: ContentDiffEntry[];
-  status: "pending" | "applying" | "applied" | "discarded" | "error";
-  error?: string;
+  status: "applied" | "undoing" | "undone";
+  undoError?: string;
 };
 
-type TextItem = { type: "text"; id: string; role: "user" | "assistant"; text: string };
+type TextItem = { type: "text"; id: string; role: "user" | "assistant"; text: string; stale?: boolean };
 
-type DisplayItem = TextItem | ProposalItem;
+type DisplayItem = TextItem | AppliedItem;
 
 function AttachIcon() {
   return (
@@ -51,46 +52,48 @@ function formatValue(v: unknown): string {
   return JSON.stringify(v);
 }
 
-function ProposalCard({ item, onApply, onDiscard }: { item: ProposalItem; onApply: () => void; onDiscard: () => void }) {
-  return (
-    <div className="mr-auto w-full max-w-[70%] border border-line-2 bg-white p-5">
-      <div className="mb-3 text-sm font-semibold text-ink">{item.summary}</div>
-      <div className="mb-4 flex flex-col gap-2">
-        {item.changes.length === 0 && <div className="text-sm text-muted">No changes detected.</div>}
-        {item.changes.map((c) => (
-          <div key={c.path} className="text-sm leading-[1.5]">
-            <div className="font-mono text-xs text-muted-3">{c.path}</div>
-            <div className="text-ink-soft line-through decoration-muted-4">{formatValue(c.before)}</div>
-            <div className="text-ink">{formatValue(c.after)}</div>
-          </div>
-        ))}
-      </div>
+function AppliedNotice({ item, canUndo, onUndo }: { item: AppliedItem; canUndo: boolean; onUndo: () => void }) {
+  const [expanded, setExpanded] = useState(false);
 
-      {item.status === "pending" || item.status === "applying" ? (
-        <div className="flex gap-3">
+  return (
+    <div className="mr-auto flex max-w-[70%] flex-col gap-1 px-1 py-1 text-sm">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-teal">✓</span>
+        <span className="text-ink-soft">{item.summary}</span>
+        {item.changes.length > 0 && (
           <button
             type="button"
-            disabled={item.status === "applying"}
-            onClick={onApply}
-            className="rounded-[2px] bg-red px-5 py-2 text-sm font-semibold text-white hover:bg-red-dark disabled:opacity-60"
+            onClick={() => setExpanded((v) => !v)}
+            className="border-0 bg-transparent p-0 text-xs text-muted-3 underline"
           >
-            {item.status === "applying" ? "Applying…" : "Apply"}
+            {expanded ? "Hide details" : "Details"}
           </button>
+        )}
+        {item.status === "undone" ? (
+          <span className="text-xs text-muted-3">Undone</span>
+        ) : canUndo ? (
           <button
             type="button"
-            disabled={item.status === "applying"}
-            onClick={onDiscard}
-            className="rounded-[2px] border border-line px-5 py-2 text-sm font-medium text-ink-soft hover:border-ink disabled:opacity-60"
+            disabled={item.status === "undoing"}
+            onClick={onUndo}
+            className="border-0 bg-transparent p-0 text-xs font-medium text-red underline disabled:opacity-60"
           >
-            Discard
+            {item.status === "undoing" ? "Undoing…" : "Undo"}
           </button>
+        ) : null}
+        {item.undoError && <span className="text-xs text-red-dark">{item.undoError}</span>}
+      </div>
+      {expanded && (
+        <div className="flex flex-col gap-1 pl-5">
+          {item.changes.map((c) => (
+            <div key={c.path} className="text-xs leading-[1.4]">
+              <span className="font-mono text-muted-3">{c.path}: </span>
+              <span className="text-ink-soft line-through decoration-muted-4">{formatValue(c.before)}</span>
+              {" → "}
+              <span className="text-ink">{formatValue(c.after)}</span>
+            </div>
+          ))}
         </div>
-      ) : item.status === "applied" ? (
-        <div className="text-sm font-medium text-teal">Applied — live on the site in about a minute.</div>
-      ) : item.status === "discarded" ? (
-        <div className="text-sm text-muted">Discarded — no changes were made.</div>
-      ) : (
-        <div className="text-sm font-medium text-red-dark">{item.error ?? "Failed to apply."}</div>
       )}
     </div>
   );
@@ -112,8 +115,8 @@ const TIPS = [
     body: "Attach a photo directly in the chat, or use the mic to describe what you want changed. Accepted formats: JPG, PNG, WebP, GIF — up to 5MB.",
   },
   {
-    heading: "Nothing publishes automatically",
-    body: "You'll always see the exact before/after change first. Click Apply to make it live, or Discard to cancel — nothing is saved until you approve it.",
+    heading: "Changes go live automatically",
+    body: "There's no approval step — edits are applied and live on the site within about a minute. If a change goes out wrong, use Undo on the most recent one to put it back.",
   },
 ];
 
@@ -229,6 +232,13 @@ export function AdminChat() {
     const assistantId = nextId();
     setItems((prev) => [...prev, { type: "text", id: assistantId, role: "assistant", text: "" }]);
 
+    // Tool outcomes (e.g. an applied edit) get their own item mid-stream, so any
+    // confirmation text the model writes afterward needs a fresh bubble placed
+    // after that item rather than continuing to fill the one from before it.
+    let currentAssistantId = assistantId;
+    let segmentText = "";
+    let assistantText = "";
+
     try {
       const res = await fetch("/api/admin/chat", {
         method: "POST",
@@ -240,7 +250,6 @@ export function AdminChat() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
-      let assistantText = "";
 
       while (true) {
         const { done, value } = await reader.read();
@@ -256,21 +265,31 @@ export function AdminChat() {
 
           if (event.type === "text_delta") {
             assistantText += event.text;
-            setItems((prev) =>
-              prev.map((it) => (it.id === assistantId ? { ...it, text: assistantText } : it)),
-            );
-          } else if (event.type === "proposal") {
+            segmentText += event.text;
+            const id = currentAssistantId;
+            const text = segmentText;
+            setItems((prev) => prev.map((it) => (it.id === id ? { ...it, text } : it)));
+          } else if (event.type === "applied") {
             setItems((prev) => [
               ...prev,
               {
-                type: "proposal",
+                type: "applied",
                 id: nextId(),
                 content: event.content,
+                before: event.before,
                 summary: event.summary,
                 changes: event.changes,
-                status: "pending",
+                status: "applied",
               },
             ]);
+            currentAssistantId = nextId();
+            segmentText = "";
+            setItems((prev) => [
+              ...prev,
+              { type: "text", id: currentAssistantId, role: "assistant", text: "" },
+            ]);
+          } else if (event.type === "done") {
+            setItems((prev) => prev.filter((it) => !(it.type === "text" && it.role === "assistant" && !it.text)));
           } else if (event.type === "error") {
             setError(event.message);
           }
@@ -287,31 +306,43 @@ export function AdminChat() {
     }
   }
 
-  async function applyProposal(item: ProposalItem) {
-    setItems((prev) => prev.map((it) => (it.id === item.id ? { ...it, status: "applying" } : it)));
+  async function undoChange(item: AppliedItem) {
+    setItems((prev) =>
+      prev.map((it) => (it.id === item.id ? { ...it, status: "undoing", undoError: undefined } : it)),
+    );
     try {
       const res = await fetch("/api/admin/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: item.content, summary: item.summary }),
+        body: JSON.stringify({ content: item.before, summary: `Revert: ${item.summary}` }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Failed to apply.");
-      setItems((prev) => prev.map((it) => (it.id === item.id ? { ...it, status: "applied" } : it)));
+      if (!res.ok) throw new Error(data.error ?? "Failed to undo.");
+      setItems((prev) => {
+        const idx = prev.findIndex((it) => it.id === item.id);
+        return prev.map((it, i) => {
+          if (it.id === item.id) return { ...it, status: "undone" };
+          // The assistant's confirmation text immediately follows its applied
+          // notice — mark it stale so it doesn't keep describing a change that
+          // no longer holds.
+          if (i === idx + 1 && it.type === "text" && it.role === "assistant") {
+            return { ...it, stale: true };
+          }
+          return it;
+        });
+      });
     } catch (err) {
       setItems((prev) =>
         prev.map((it) =>
           it.id === item.id
-            ? { ...it, status: "error", error: err instanceof Error ? err.message : "Failed to apply." }
+            ? { ...it, status: "applied", undoError: err instanceof Error ? err.message : "Failed to undo." }
             : it,
         ),
       );
     }
   }
 
-  function discardProposal(item: ProposalItem) {
-    setItems((prev) => prev.map((it) => (it.id === item.id ? { ...it, status: "discarded" } : it)));
-  }
+  const lastAppliedId = [...items].reverse().find((it) => it.type === "applied")?.id;
 
   return (
     <div className="container-cr flex flex-1 gap-12 overflow-hidden py-8">
@@ -320,8 +351,8 @@ export function AdminChat() {
         {items.length === 0 && (
           <p className="text-sm leading-[1.6] text-ink-muted">
             Tell me what to update on the homepage — for example, &ldquo;change the hero tagline to
-            Communication, on your side.&rdquo; I&apos;ll show you the exact change before anything goes
-            live.
+            Communication, on your side.&rdquo; I&apos;ll make the change and tell you what changed —
+            you can undo the most recent edit any time.
           </p>
         )}
         {items.map((item) =>
@@ -331,17 +362,18 @@ export function AdminChat() {
               className={
                 item.role === "user"
                   ? "ml-auto max-w-[70%] bg-ink px-4 py-3 text-[15px] leading-[1.5] text-cream"
-                  : "mr-auto max-w-[70%] border border-line bg-white px-4 py-3 text-[15px] leading-[1.5] text-ink-soft"
+                  : `mr-auto max-w-[70%] border border-line bg-white px-4 py-3 text-[15px] leading-[1.5] text-ink-soft${item.stale ? " opacity-50" : ""}`
               }
             >
-              {item.text || (item.role === "assistant" ? "…" : "")}
+              {item.text || (item.role === "assistant" ? "Working on it…" : "")}
+              {item.stale && <span className="ml-2 text-xs text-muted-3">(undone)</span>}
             </div>
           ) : (
-            <ProposalCard
+            <AppliedNotice
               key={item.id}
               item={item}
-              onApply={() => applyProposal(item)}
-              onDiscard={() => discardProposal(item)}
+              canUndo={item.id === lastAppliedId && item.status === "applied"}
+              onUndo={() => undoChange(item)}
             />
           ),
         )}
